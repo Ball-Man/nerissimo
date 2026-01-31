@@ -132,7 +132,8 @@ class DirtyRenderLoopProcessor(desper.Processor):
 def game_world_transformer(handle: desper.WorldHandle, world: desper.World):
     """Instantiate game world (bonnet specific)."""
     world.add_processor(InputProcessor())
-    world.add_processor(DirtyRenderLoopProcessor())
+    # world.add_processor(DirtyRenderLoopProcessor())
+    world.add_processor(graphics.RenderLoopProcessor())
     world.create_entity(BonnetToSDLKeys())
 
     world.create_entity(RenderHandler())
@@ -157,6 +158,7 @@ class QuitButtonHandler:
             desper.quit_loop()
 
 
+
 class InputProcessor(desper.Processor):
     """Handle input events."""
     _button_states = {}
@@ -168,13 +170,22 @@ class InputProcessor(desper.Processor):
             if not self._button_states.get(button) and button_value:
                 self.world.dispatch('on_bonnet_button_press', button)
 
+            # Detect up-down edge
+            button_value = not digital.value
+            if self._button_states.get(button) and not button_value:
+                self.world.dispatch('on_bonnet_button_release', button)
+
             self._button_states[button] = button_value
 
 
-@desper.event_handler('on_bonnet_button_press')
+@desper.event_handler('on_bonnet_button_press', 'on_bonnet_button_release')
 class BonnetToSDLKeys(desper.Controller):
     """Map all bonnet button events to SDL keys."""
 
     def on_bonnet_button_press(self, button):
         """Dispatch the corresponding SDL key down event."""
         self.world.dispatch('on_key_down', _BONNET_TO_SDL_MAP[button])
+
+    def on_bonnet_button_release(self, button):
+        """Dispatch the corresponding SDL key up event."""
+        self.world.dispatch('on_key_up', _BONNET_TO_SDL_MAP[button])
