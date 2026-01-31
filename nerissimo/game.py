@@ -92,3 +92,16 @@ class QuitOnWin:
 
     def on_win(self):
         desper.quit_loop()
+
+
+@desper.event_handler(ON_WIN_EVENT)
+class NextOnWin:
+    """On win, raise exception to get to next level."""
+
+    def on_win(self):
+        raise Next()
+
+
+class Next(Exception):
+    """Custom exception to switch to the next level."""
+    pass
