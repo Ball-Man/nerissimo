@@ -23,7 +23,17 @@ class UserControlled(desper.Controller):
 
     def on_key_down(self, sym):
         logger.info('Received %d', sym)
-        self.velocity.value = desper.math.Vec2(0, 0)
+
+        new_x, new_y = self.velocity.value
+
+        if sym == sdl2.SDL_SCANCODE_LEFT or sym == sdl2.SDL_SCANCODE_RIGHT:
+            new_y = 0
+
+        if sym == sdl2.SDL_SCANCODE_UP or sym == sdl2.SDL_SCANCODE_DOWN:
+            new_x = 0
+
+        self.velocity.value = desper.math.Vec2(new_x, new_y)
+
         if sym == sdl2.SDL_SCANCODE_LEFT:
             self.velocity.value += (0, -10)
         if sym == sdl2.SDL_SCANCODE_RIGHT:
