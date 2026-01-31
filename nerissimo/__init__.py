@@ -4,6 +4,7 @@ from collections import deque
 
 import desper
 import sdl2
+from sdl2 import sdlttf as ttf
 
 from . import graphics
 from . import desktop
@@ -26,6 +27,7 @@ LAYOUT_Y_CELL_OFFSET = 1
 
 def start_game(on_bonnet: bool = False, window_scale: int = 1):
     sdl2.SDL_Init(0)
+    ttf.TTF_Init()
 
     if not on_bonnet:       # Only create a window on desktop
         global window
@@ -41,6 +43,7 @@ def start_game(on_bonnet: bool = False, window_scale: int = 1):
         trim_extensions=True)
 
     directory_populator.add_rule('sprites', graphics.SurfaceHandle)
+    directory_populator.add_rule('fonts', graphics.TTFHandle)
     directory_populator(desper.resource_map)
 
     for level_name, level_transformer in levels.transformer_list:

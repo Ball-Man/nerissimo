@@ -5,6 +5,7 @@ import time
 import desper
 from desper.math import clamp, Vec2
 import sdl2
+from sdl2 import sdlttf as ttf
 from sdl2.ext import pixels2d, SurfaceArray
 
 # Basic bonnet size, also used for window/surface dimenions
@@ -12,6 +13,7 @@ BONNET_WIDTH = 128
 BONNET_HEIGHT = 64
 
 LP_SDL_Surface = ctypes.POINTER(sdl2.SDL_Surface)
+LP_TTF_Font = ctypes.POINTER(ttf.TTF_Font)
 
 
 class SurfaceHandle(desper.Handle):
@@ -27,6 +29,31 @@ class SurfaceHandle(desper.Handle):
         if self._cached:
             sdl2.SDL_FreeSurface(self._cache)
         super().clear()
+
+
+class TTFHandle(desper.Handle):
+    """Load a TTF SDL font resource."""
+
+    def __init__(self, filename, pt=32):
+        self.filename = filename
+        self.pt = pt
+
+    def load(self) -> LP_TTF_Font:
+        return ttf.TTF_OpenFont(self.filename.encode(), self.pt)
+
+    def clear(self):
+        if self._cached:
+            ttf.TTF_CloseFont(self._cache)
+        super().clear()
+
+
+def render_text(font_resource: str, text: str) -> LP_SDL_Surface:
+    """Render text with the given font resource."""
+    surface = ttf.TTF_RenderUTF8_Solid(desper.resource_map[font_resource],
+                                       text.encode(),
+                                       sdl2.SDL_Color())
+    # This gets rendered to a nasty bulky surface, get it to our space
+    return sdl2.SDL_ConvertSurfaceFormat(surface, sdl2.SDL_PIXELFORMAT_RGB332, 0)
 
 
 def prepare_surface_array_components(surface):
@@ -121,4 +148,4 @@ class ClipTransformsProcessors(desper.Processor):
             transform.position = Vec2(clamp(position_x, self.clip_rectangle[0],
                                             self.clip_rectangle[2] - surface.contents.h),
                                       clamp(position_y, self.clip_rectangle[1],
-                                            self.clip_rectangle[3] - surface.contents.h))
+                                            self.clip_rectangle[3] - surface.contents.w))
