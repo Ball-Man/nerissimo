@@ -1,3 +1,4 @@
+import sys
 import pathlib
 from functools import partial
 from collections import deque
@@ -26,6 +27,8 @@ LAYOUT_Y_CELL_OFFSET = 1
 
 
 def start_game(on_bonnet: bool = False, window_scale: int = 1):
+    from .log import logger
+    logger.info('window scale %d', window_scale)
     sdl2.SDL_Init(0)
     ttf.TTF_Init()
 
@@ -38,8 +41,14 @@ def start_game(on_bonnet: bool = False, window_scale: int = 1):
                                        graphics.BONNET_HEIGHT * window_scale,
                                        0)
 
+    if getattr(sys, 'frozen', False):
+        resource_root = pathlib.Path(sys.executable).absolute().parent
+        logger.info('Game frozen, executable path is %s', resource_root)
+    else:
+        resource_root = pathlib.Path(__file__).absolute().parents[1]
+
     directory_populator = desper.DirectoryResourcePopulator(
-        pathlib.Path(__file__).absolute().parents[1] / 'resources',
+        resource_root / 'resources',
         trim_extensions=True)
 
     directory_populator.add_rule('sprites', graphics.SurfaceHandle)
