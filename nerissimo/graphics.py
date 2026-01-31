@@ -4,6 +4,7 @@ import time
 
 import desper
 import sdl2
+from sdl2.ext import pixels2d, SurfaceArray
 
 # Basic bonnet size, also used for window/surface dimenions
 BONNET_WIDTH = 128
@@ -27,6 +28,11 @@ class SurfaceHandle(desper.Handle):
         super().clear()
 
 
+def prepare_surface_array_components(surface):
+    """Return the pair: surface, an ndarray referencing it."""
+    return surface, pixels2d(surface)
+
+
 class ScreenSurface:
     """ID component: identify the screen surface."""
 
@@ -39,26 +45,28 @@ class ScreenSurfaceHandler(desper.Controller):
     identified by the :class:`ScreenSurface` component. The surface is
     not directly rendered to the screen. This is done to provide
     compatibility with the adafruit bonnet rendering implementation.
+
+    Modded using numpy to use a xor blendmode.
     """
 
     def update_screen_surface(self):
         screen_surface_entity, _ = self.world.get(ScreenSurface)[0]
         screen_surface = self.world.get_component(screen_surface_entity,
                                                   LP_SDL_Surface)
+        screen_surface_array = self.world.get_component(screen_surface_entity,
+                                                        SurfaceArray)
         sdl2.SDL_FillRect(screen_surface, None, 0)
 
-        for entity, surface in self.world.get(LP_SDL_Surface):
+        for entity, surface in self.world.get(SurfaceArray):
             if entity == screen_surface_entity:
                 continue
 
             transform: desper.Transform2D = self.world.get_component(
                 entity, desper.Transform2D)
 
-            sdl2.SDL_BlitSurface(
-                surface, None,
-                screen_surface,
-                sdl2.SDL_Rect(*transform.position, surface.contents.w,
-                              surface.contents.h))
+            int_pos = round(transform.position)
+            screen_surface_array[int_pos.y:int_pos.y+surface.shape[0],
+                                 int_pos.x:int_pos.x+surface.shape[1]] ^= surface
 
 
 class RenderLoopProcessor(desper.Processor):
