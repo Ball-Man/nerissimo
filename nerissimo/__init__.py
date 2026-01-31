@@ -6,7 +6,7 @@ import sdl2
 
 from . import graphics
 from . import desktop
-# from . import game
+from . import game
 
 try:
     from . import bonnet
@@ -30,11 +30,25 @@ def base_game_world_transformer(handle: desper.WorldHandle,
 
     # Setup screen rendering
     world.create_entity(graphics.ScreenSurfaceHandler())
+    screen_surface, screen_surface_array = graphics.prepare_surface_array_components(
+            sdl2.SDL_CreateRGBSurfaceWithFormat(0, graphics.BONNET_WIDTH,
+                                                graphics.BONNET_HEIGHT, 1,
+                                                sdl2.SDL_PIXELFORMAT_RGB332))
     world.create_entity(
-        graphics.ScreenSurface(),
-        sdl2.SDL_CreateRGBSurfaceWithFormat(0, graphics.BONNET_WIDTH,
-                                            graphics.BONNET_HEIGHT, 1,
-                                            sdl2.SDL_PIXELFORMAT_RGB332))
+        graphics.ScreenSurface(), screen_surface, screen_surface_array)
+
+    world.create_entity(
+        desper.Transform2D(position=(20, 70)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/char']))
+
+    world.create_entity(
+        desper.Transform2D(position=(20, 20)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/char']),
+        game.Velocity(0, 8))
+
+    world.add_processor(graphics.TimeProcessor(1 / 20))
+    world.add_processor(game.VelocityProcessor())
+    world.add_processor(game.WinConditionProcessor(screen_surface_array), 1000)
 
 
 def start_game(on_bonnet: bool = False, window_scale: int = 1):
