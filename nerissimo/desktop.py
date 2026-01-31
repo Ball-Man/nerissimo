@@ -20,6 +20,8 @@ class InputProcessor(desper.Processor):
         while sdl2.SDL_PollEvent(ctypes.byref(event)) != 0:
             if event.type == sdl2.SDL_KEYDOWN and not event.key.repeat:
                 self.world.dispatch('on_key_down', event.key.keysym.scancode)
+            elif event.type == sdl2.SDL_KEYUP:
+                self.world.dispatch('on_key_up', event.key.keysym.scancode)
             elif event.type == sdl2.SDL_QUIT:
                 desper.quit_loop()
 
