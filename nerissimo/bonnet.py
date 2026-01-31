@@ -158,7 +158,6 @@ class QuitButtonHandler:
             desper.quit_loop()
 
 
-
 class InputProcessor(desper.Processor):
     """Handle input events."""
     _button_states = {}
