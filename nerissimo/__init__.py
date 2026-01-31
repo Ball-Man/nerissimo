@@ -44,11 +44,14 @@ def base_game_world_transformer(handle: desper.WorldHandle,
     world.create_entity(
         desper.Transform2D(position=(20, 20)),
         *graphics.prepare_surface_array_components(desper.resource_map['sprites/char']),
-        game.Velocity(0, 8))
+        game.Velocity(0, 0),
+        game.UserControlled())
 
-    world.add_processor(graphics.TimeProcessor(1 / 20))
+    world.add_processor(graphics.TimeProcessor(1 / 30))
     world.add_processor(game.VelocityProcessor())
     world.add_processor(game.WinConditionProcessor(screen_surface_array), 1000)
+
+    world.create_entity(game.QuitOnWin())
 
 
 def start_game(on_bonnet: bool = False, window_scale: int = 1):

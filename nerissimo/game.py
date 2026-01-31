@@ -16,6 +16,30 @@ class Velocity():
         self.value = desper.math.Vec2(x, y)
 
 
+@desper.event_handler('on_key_down', 'on_key_up')
+class UserControlled(desper.Controller):
+    """Adjust velocity based on user input."""
+    velocity = desper.ComponentReference(Velocity)
+
+    def on_key_down(self, sym):
+        logger.info('Received %d', sym)
+        self.velocity.value = desper.math.Vec2(0, 0)
+        if sym == sdl2.SDL_SCANCODE_LEFT:
+            self.velocity.value += (0, -10)
+        if sym == sdl2.SDL_SCANCODE_RIGHT:
+            self.velocity.value += (0, 10)
+        if sym == sdl2.SDL_SCANCODE_UP:
+            self.velocity.value += (-10, 0)
+        if sym == sdl2.SDL_SCANCODE_DOWN:
+            self.velocity.value += (10, 0)
+
+    def on_key_up(self, sym):
+        if sym == sdl2.SDL_SCANCODE_LEFT or sym == sdl2.SDL_SCANCODE_RIGHT:
+            self.velocity.value = desper.math.Vec2(self.velocity.value[0], 0)
+        if sym == sdl2.SDL_SCANCODE_UP or sym == sdl2.SDL_SCANCODE_DOWN:
+            self.velocity.value = desper.math.Vec2(0, self.velocity.value[1])
+
+
 class VelocityProcessor(desper.Processor):
     """Add velocity to transform."""
 
@@ -32,7 +56,7 @@ class VelocityProcessor(desper.Processor):
                 new_round_pos_diff = round(old_position) - round(transform.position)
                 if abs(new_round_pos_diff[0]) > 1 or abs(new_round_pos_diff[1]) > 1:
                     logger.warning('Velocity of entity %d surpassing 1 pixel per frame (%s)',
-                                   velocity.value * (dt, dt))
+                                   entity, velocity.value * (dt, dt))
 
 
 class WinConditionProcessor(desper.Processor):
