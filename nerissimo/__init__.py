@@ -38,18 +38,21 @@ def base_game_world_transformer(handle: desper.WorldHandle,
         graphics.ScreenSurface(), screen_surface, screen_surface_array)
 
     world.create_entity(
-        desper.Transform2D(position=(20, 70)),
-        *graphics.prepare_surface_array_components(desper.resource_map['sprites/char']))
+        desper.Transform2D(position=(2, 2)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(30, 30, 0xFF)),
+        game.Velocity(0, 0),
+        game.UserControlled(),
+        graphics.EnsureClipped())
 
     world.create_entity(
-        desper.Transform2D(position=(20, 20)),
-        *graphics.prepare_surface_array_components(desper.resource_map['sprites/char']),
-        game.Velocity(0, 0),
-        game.UserControlled())
+        desper.Transform2D(position=(17, 49)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(30, 30, 0xFF)))
 
     world.add_processor(graphics.TimeProcessor(1 / 30))
     world.add_processor(game.VelocityProcessor())
     world.add_processor(game.WinConditionProcessor(screen_surface_array), 1000)
+    world.add_processor(graphics.ClipTransformsProcessors((0, 0, graphics.BONNET_HEIGHT,
+                                                           graphics.BONNET_WIDTH)))
 
     world.create_entity(game.QuitOnWin())
 

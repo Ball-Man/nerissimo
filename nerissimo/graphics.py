@@ -3,6 +3,7 @@ import ctypes
 import time
 
 import desper
+from desper.math import clamp, Vec2
 import sdl2
 from sdl2.ext import pixels2d, SurfaceArray
 
@@ -98,3 +99,26 @@ def build_surface(width: int, height: int, color: int) -> LP_SDL_Surface:
     sdl2.SDL_FillRect(new_surface, None, color)
 
     return new_surface
+
+
+class EnsureClipped:
+    """Ensure the transform of the given entity is clipped."""
+
+
+class ClipTransformsProcessors(desper.Processor):
+    """Ensure entities are clipped in the given rectangle (screen)."""
+
+    def __init__(self, clip_rectangle):
+        self.clip_rectangle = clip_rectangle
+
+    def process(self, _):
+        for entity, _ in self.world.get(EnsureClipped):
+            transform = self.world.get_component(entity, desper.Transform2D)
+            surface = self.world.get_component(entity, LP_SDL_Surface)
+
+            position_x = transform.position[0]
+            position_y = transform.position[1]
+            transform.position = Vec2(clamp(position_x, self.clip_rectangle[0],
+                                            self.clip_rectangle[2] - surface.contents.h),
+                                      clamp(position_y, self.clip_rectangle[1],
+                                            self.clip_rectangle[3] - surface.contents.h))
