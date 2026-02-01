@@ -10,10 +10,10 @@ INCLUDE_FILES = ['resources']
 # fine tuning.
 # Optimize = 1 keeps docstrings, unfortunately it is required by numpy
 # which would crash without them (unknown reason
-build_options = {'packages': PACKAGES, 'excludes': EXCLUDE, 'optimize': 2,
-                 'include_files': INCLUDE_FILES}
+build_options = {'packages': PACKAGES, 'excludes': EXCLUDE, 'optimize': 1,
+                 'include_files': INCLUDE_FILES, 'include_msvcr': True}
 
-base = 'Win32GUI' if sys.platform == 'win32' else None
+base = 'gui' if sys.platform == 'win32' else None
 
 executables = [
     Executable('desktop_main.py', base=base, target_name=TARGET),
