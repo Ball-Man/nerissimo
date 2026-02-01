@@ -34,7 +34,7 @@ def base_level_transformer(handle: desper.WorldHandle,
 
 def base_square_level_transformer(handle: desper.WorldHandle,
                                   world: desper.World):
-    """Instantiate game world basics (common to all platforms)."""
+    """First screen, move the square."""
     world.create_entity(
         desper.Transform2D(position=(2, 2)),
         *graphics.prepare_surface_array_components(graphics.build_surface(30, 30, 0xFF)),
@@ -49,7 +49,7 @@ def base_square_level_transformer(handle: desper.WorldHandle,
 
 def base_nerissimo_level_transformer(handle: desper.WorldHandle,
                                      world: desper.World):
-    """Instantiate game world basics (common to all platforms)."""
+    """Title drop."""
     nerissimo = graphics.render_text('fonts/exepixelperfect', 'NERISSIMO')
 
     world.create_entity(
@@ -111,6 +111,6 @@ def base_crossing2_level_transformer(handle: desper.WorldHandle,
 
 transformer_list = [
     ('square', base_square_level_transformer),
-    ('square2', base_nerissimo_level_transformer),
+    ('nerissimo', base_nerissimo_level_transformer),
     ('crossing', base_crossing_level_transformer),
 ]
