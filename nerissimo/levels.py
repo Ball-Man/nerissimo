@@ -30,6 +30,7 @@ def base_level_transformer(handle: desper.WorldHandle,
                                                            graphics.BONNET_WIDTH)), 99)
 
     world.create_entity(game.NextOnWin())
+    world.create_entity(game.QuitOnKey(sdl2.SDL_SCANCODE_ESCAPE))
 
 
 def base_square_level_transformer(handle: desper.WorldHandle,

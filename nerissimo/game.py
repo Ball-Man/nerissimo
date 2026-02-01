@@ -197,6 +197,18 @@ class TargetProcessor(desper.Processor):
                 self.world.remove_component(entity, Target)
 
 
+@desper.event_handler('on_key_down')
+class QuitOnKey:
+    """Quit game on given key press."""
+
+    def __init__(self, sym):
+        self.sym = sym
+
+    def on_key_down(self, sym):
+        if self.sym == sym:
+            desper.quit_loop()
+
+
 @desper.event_handler(ON_WIN_EVENT)
 class QuitOnWin:
     """On win, simply quit the game."""
