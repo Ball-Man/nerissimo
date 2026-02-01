@@ -221,6 +221,31 @@ class TargetProcessor(desper.Processor):
                 self.world.remove_component(entity, Target)
 
 
+class TargetSequence(desper.Controller):
+    """Chase a sequence of targets."""
+    target = desper.ComponentReference(Target)
+    transform = desper.ComponentReference(desper.Transform2D)
+    target_index = 0
+
+    @desper.coroutine
+    def _wait(self):
+        while True:
+            if self.target is None:
+                self.target_index = (self.target_index + 1) % len(self.targets)
+                self.target = self.targets[self.target_index]
+                yield self.wait_time
+            yield
+
+    def __init__(self, targets, wait_time=2):
+        self.targets = targets
+        self.wait_time = wait_time
+
+    def on_add(self, entity, world):
+        super().on_add(entity, world)
+        self.target = self.targets[self.target_index]
+        self._wait()
+
+
 @desper.event_handler('on_key_down')
 class QuitOnKey:
     """Quit game on given key press."""

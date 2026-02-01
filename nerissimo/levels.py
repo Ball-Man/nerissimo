@@ -48,6 +48,27 @@ def base_square_level_transformer(handle: desper.WorldHandle,
         *graphics.prepare_surface_array_components(graphics.build_surface(30, 30, 0xFF)))
 
 
+def base_squarechase_level_transformer(handle: desper.WorldHandle,
+                                       world: desper.World):
+    """Chase the square."""
+    world.create_entity(
+        desper.Transform2D(position=(40, 100)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)),
+        game.Velocity(0, 0),
+        game.UserControlled(),
+        graphics.EnsureClipped())
+
+    targets = [game.Target(desper.math.Vec2(2, 80)),
+               game.Target(desper.math.Vec2(35, 50)),
+               game.Target(desper.math.Vec2(20, 4))]
+    world.create_entity(
+        desper.Transform2D(position=(20, 4)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)),
+        game.TargetSequence(targets=targets))
+
+    world.add_processor(game.TargetProcessor())
+
+
 def base_nerissimo_level_transformer(handle: desper.WorldHandle,
                                      world: desper.World):
     """Title drop."""
@@ -170,4 +191,5 @@ transformer_list = [
     ('nerissimo', base_nerissimo_level_transformer),
     ('crossing', base_crossing_level_transformer),
     ('knight', base_knight_level_transformer),
+    ('squarechase', base_squarechase_level_transformer)
 ]
