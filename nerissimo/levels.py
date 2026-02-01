@@ -163,8 +163,8 @@ def base_knight_level_transformer(handle: desper.WorldHandle,
 
 
 transformer_list = [
-    ('trailer', base_nerissimo_trailer_level_transformer),
-    ('trailer_black_screen', black_screen_level_transform),
+    # ('trailer', base_nerissimo_trailer_level_transformer),
+    # ('trailer_black_screen', black_screen_level_transform),
 
     ('square', base_square_level_transformer),
     ('nerissimo', base_nerissimo_level_transformer),
