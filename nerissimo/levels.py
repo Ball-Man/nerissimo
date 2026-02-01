@@ -109,8 +109,27 @@ def base_crossing2_level_transformer(handle: desper.WorldHandle,
     world.add_processor(desper.OnUpdateProcessor())
 
 
+def base_knight_level_transformer(handle: desper.WorldHandle,
+                                  world: desper.World):
+    """Knight movement to eat a standing knight."""
+    world.create_entity(
+        desper.Transform2D(position=(32, 12)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/knight']),
+        game.Velocity(0, 0),
+        game.UserControlledKnight((0, 0, graphics.BONNET_HEIGHT, graphics.BONNET_WIDTH)),
+        graphics.EnsureClipped())
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 92)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/knight']))
+
+    world.add_processor(game.TargetProcessor())
+    world.add_processor(desper.OnUpdateProcessor())
+
+
 transformer_list = [
     ('square', base_square_level_transformer),
     ('nerissimo', base_nerissimo_level_transformer),
     ('crossing', base_crossing_level_transformer),
+    ('knight', base_knight_level_transformer),
 ]
