@@ -64,7 +64,53 @@ def base_nerissimo_level_transformer(handle: desper.WorldHandle,
         *graphics.prepare_surface_array_components(nerissimo))
 
 
+def base_crossing_level_transformer(handle: desper.WorldHandle,
+                                    world: desper.World):
+    """Oscillating blocks leave a hole."""
+    world.create_entity(
+        desper.Transform2D(position=(2, 2)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)),
+        game.Velocity(0, 0),
+        game.UserControlled(),
+        graphics.EnsureClipped())
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 49)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(40, 20, 0xFF)),
+        game.Oscillate(20, 4))
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 49)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)))
+
+    world.add_processor(desper.OnUpdateProcessor())
+
+
+def base_crossing2_level_transformer(handle: desper.WorldHandle,
+                                     world: desper.World):
+    """Oscillating blocks leave a hole., double oscillation"""
+    world.create_entity(
+        desper.Transform2D(position=(2, 2)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)),
+        game.Velocity(0, 0),
+        game.UserControlled(),
+        graphics.EnsureClipped())
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 49)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(40, 20, 0xFF)),
+        game.Oscillate(20, 2.3))
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 49)),
+        *graphics.prepare_surface_array_components(graphics.build_surface(20, 20, 0xFF)),
+        game.Oscillate(-20, 2.3))
+
+    world.add_processor(desper.OnUpdateProcessor())
+
+
 transformer_list = [
     ('square', base_square_level_transformer),
     ('square2', base_nerissimo_level_transformer),
+    ('crossing', base_crossing_level_transformer),
 ]
