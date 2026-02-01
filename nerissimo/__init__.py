@@ -66,7 +66,8 @@ def start_game(on_bonnet: bool = False, window_scale: int = 1):
 
     # Platform specific world transformer
     for world_handle in desper.resource_map['worlds'].handles.values():
-        world_handle.transform_functions.append(platform_specific_transformer)
+        world_handle.transform_functions += [platform_specific_transformer,
+                                             levels.base_level_transformer]
 
     desper.default_loop.switch(desper.resource_map.get(f'worlds/{levels.transformer_list[0][0]}'))
     level_queue = deque(map(lambda pair: pair[0], levels.transformer_list))
