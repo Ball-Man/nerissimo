@@ -1,3 +1,5 @@
+import math
+
 import desper
 import sdl2
 
@@ -84,6 +86,26 @@ class WinConditionProcessor(desper.Processor):
             logger.info('Win')
             self._enabled = False
             self.world.dispatch(ON_WIN_EVENT)
+
+
+@desper.event_handler(desper.ON_UPDATE_EVENT_NAME)
+class Oscillate(desper.Controller):
+    transform = desper.ComponentReference(desper.Transform2D)
+    _time = 0
+
+    def __init__(self, amplitude, freq):
+        self.amplitude = amplitude
+        self.freq = freq
+
+    def on_add(self, *args):
+        super().on_add(*args)
+        self.base = self.transform.position[0]
+
+    def on_update(self, dt):
+        self._time += dt
+
+        self.transform.position = desper.math.Vec2(self.base + self.amplitude * math.cos(self._time * self.freq),
+                                                   self.transform.position[1])
 
 
 @desper.event_handler(ON_WIN_EVENT)
