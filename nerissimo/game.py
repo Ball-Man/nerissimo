@@ -2,6 +2,7 @@ import math
 
 import desper
 import sdl2
+from sdl2.ext import SurfaceArray
 
 import numpy as np
 
@@ -106,6 +107,94 @@ class Oscillate(desper.Controller):
 
         self.transform.position = desper.math.Vec2(self.base + self.amplitude * math.cos(self._time * self.freq),
                                                    self.transform.position[1])
+
+
+class Target:
+    """Target position for an entity."""
+
+    def __init__(self, value: desper.math.Vec2):
+        self.value = value
+
+
+def check_target(clip_rect, target: Target, shape) -> bool:
+    """Check that a given candidate target is valid (within borders)."""
+    return not (target.value.x + shape[1] > clip_rect[2] or target.value.x < 0
+                or target.value.y + shape[0] > clip_rect[3] or target.value.y < 0)
+
+
+class Knight(desper.Controller):
+    """Provide a step function that sets an L step target."""
+    velocity = desper.ComponentReference(Velocity)
+    transform = desper.ComponentReference(desper.Transform2D)
+    target = desper.ComponentReference(Target)
+    surface_array = desper.ComponentReference(SurfaceArray)
+
+    def __init__(self, clip_rect, short_side=10, long_side=20):
+        self.clip_rect = clip_rect
+        self.short_side = short_side
+        self.long_side = long_side
+
+    @desper.coroutine
+    def _slow_down(self, world):
+        while self.target is not None:
+            self.velocity.value /= (2, 2)
+            yield
+
+    def step(self, sym):
+        if sym not in (sdl2.SDL_SCANCODE_LEFT, sdl2.SDL_SCANCODE_RIGHT, sdl2.SDL_SCANCODE_UP,
+                       sdl2.SDL_SCANCODE_DOWN):
+            return
+        if self.target is not None:
+            return
+
+        if sym == sdl2.SDL_SCANCODE_LEFT:
+            candidate_velocity = desper.math.Vec2(-100, 0)
+            candidate = Target(self.transform.position - (self.short_side, self.long_side))
+        if sym == sdl2.SDL_SCANCODE_RIGHT:
+            candidate_velocity = desper.math.Vec2(100, 0)
+            candidate = Target(self.transform.position + (self.short_side, self.long_side))
+        if sym == sdl2.SDL_SCANCODE_UP:
+            candidate_velocity = desper.math.Vec2(0, -100)
+            candidate = Target(self.transform.position + (-self.long_side, self.short_side))
+        if sym == sdl2.SDL_SCANCODE_DOWN:
+            candidate_velocity = desper.math.Vec2(0, 100)
+            candidate = Target(self.transform.position - (-self.long_side, self.short_side))
+
+        if check_target(self.clip_rect, candidate, self.surface_array.shape):
+            self.velocity.value = candidate_velocity
+            self.target = candidate
+            self._slow_down(world=self.world)
+
+
+@desper.event_handler(on_key_down='step')
+class UserControlledKnight(Knight):
+    """Trigger knight movement using keys."""
+    pass
+
+
+class TargetProcessor(desper.Processor):
+    """Interpolate transform of entities to reach :attr:`Target`.
+
+    This is a exp frame based interpolation. Some tricks to ensure
+    that the target is reached.
+    """
+
+    def process(self, dt):
+        for entity, target in self.world.get(Target):
+            transform = self.world.get_component(entity, desper.Transform2D)
+            velocity = self.world.get_component(entity, Velocity)
+
+            min_ax_speed = 0.5 / max(1 / 20, dt)
+            transform.position += (
+                ((target.value - transform.position)
+                 * (0.2, 0.2)).clamp(-min_ax_speed, min_ax_speed)
+            )
+
+            if abs(transform.position - target.value) < 1:
+                transform.position = target.value
+                if velocity is not None:
+                    velocity.value = desper.math.Vec2()
+                self.world.remove_component(entity, Target)
 
 
 @desper.event_handler(ON_WIN_EVENT)
