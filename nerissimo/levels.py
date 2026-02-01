@@ -86,6 +86,23 @@ def base_nerissimo_level_transformer(handle: desper.WorldHandle,
         *graphics.prepare_surface_array_components(nerissimo))
 
 
+def base_restart_level_transformer(handle: desper.WorldHandle,
+                                   world: desper.World):
+    """End."""
+    text = graphics.render_text('fonts/exepixelperfect', 'RESTART')
+
+    world.create_entity(
+        desper.Transform2D(position=(2, 2)),
+        *graphics.prepare_surface_array_components(text),
+        game.Velocity(0, 0),
+        game.UserControlled(),
+        graphics.EnsureClipped())
+
+    world.create_entity(
+        desper.Transform2D(position=(20, 2)),
+        *graphics.prepare_surface_array_components(text))
+
+
 def base_nerissimo_trailer_level_transformer(handle: desper.WorldHandle,
                                              world: desper.World):
     """Title drop trailer."""
@@ -183,13 +200,36 @@ def base_knight_level_transformer(handle: desper.WorldHandle,
     world.add_processor(desper.OnUpdateProcessor())
 
 
+def base_autoknight_level_transformer(handle: desper.WorldHandle,
+                                      world: desper.World):
+    """Knight movement to eat a standing knight."""
+    world.create_entity(
+        desper.Transform2D(position=(32, 12)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/knight']),
+        game.Velocity(0, 0),
+        game.UserControlledKnight((0, 0, graphics.BONNET_HEIGHT, graphics.BONNET_WIDTH)),
+        graphics.EnsureClipped())
+
+    world.create_entity(
+        desper.Transform2D(position=(22, 92)),
+        *graphics.prepare_surface_array_components(desper.resource_map['sprites/knight']),
+        game.Knight((0, 0, graphics.BONNET_HEIGHT, graphics.BONNET_WIDTH)),
+        game.Velocity(0, 0),
+        game.AutoKnightMovement([sdl2.SDL_SCANCODE_LEFT, sdl2.SDL_SCANCODE_DOWN, sdl2.SDL_SCANCODE_RIGHT, sdl2.SDL_SCANCODE_UP]))
+
+    world.add_processor(game.TargetProcessor())
+    world.add_processor(desper.OnUpdateProcessor())
+
+
 transformer_list = [
     # ('trailer', base_nerissimo_trailer_level_transformer),
     # ('trailer_black_screen', black_screen_level_transform),
-
     ('square', base_square_level_transformer),
     ('nerissimo', base_nerissimo_level_transformer),
     ('crossing', base_crossing_level_transformer),
     ('knight', base_knight_level_transformer),
-    ('squarechase', base_squarechase_level_transformer)
+    ('squarechase', base_squarechase_level_transformer),
+    ('crossing2', base_crossing2_level_transformer),
+    ('autoknight', base_autoknight_level_transformer),
+    ('restart', base_restart_level_transformer)
 ]
