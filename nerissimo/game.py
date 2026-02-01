@@ -167,9 +167,9 @@ class Knight(desper.Controller):
     def step(self, sym):
         if sym not in (sdl2.SDL_SCANCODE_LEFT, sdl2.SDL_SCANCODE_RIGHT, sdl2.SDL_SCANCODE_UP,
                        sdl2.SDL_SCANCODE_DOWN):
-            return
+            return False
         if self.target is not None:
-            return
+            return False
 
         if sym == sdl2.SDL_SCANCODE_LEFT:
             candidate_velocity = desper.math.Vec2(-100, 0)
@@ -189,11 +189,28 @@ class Knight(desper.Controller):
             self.target = candidate
             self._slow_down(world=self.world)
 
+        return True
+
 
 @desper.event_handler(on_key_down='step')
 class UserControlledKnight(Knight):
     """Trigger knight movement using keys."""
     pass
+
+
+@desper.event_handler('on_update')
+class AutoKnightMovement(desper.Controller):
+    """Move a knight in a defined sequence."""
+    knight = desper.ComponentReference(Knight)
+
+    def __init__(self, keys_sequence):
+        self.keys_sequence = keys_sequence
+        self.keys_index = 0
+
+    def on_update(self, _):
+        applied = self.knight.step(self.keys_sequence[self.keys_index])
+        if applied:
+            self.keys_index = (self.keys_index + 1) % len(self.keys_sequence)
 
 
 class TargetProcessor(desper.Processor):
