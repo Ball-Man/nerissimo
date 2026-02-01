@@ -65,6 +65,40 @@ def base_nerissimo_level_transformer(handle: desper.WorldHandle,
         *graphics.prepare_surface_array_components(nerissimo))
 
 
+def base_nerissimo_trailer_level_transformer(handle: desper.WorldHandle,
+                                             world: desper.World):
+    """Title drop trailer."""
+    nerissimo = graphics.render_text('fonts/exepixelperfect', 'NERISSIMO')
+
+    # Cheap trick to get two components of the same type on an entity
+    class O2(game.Oscillate):
+        pass
+
+    target = game.Target(desper.math.Vec2(13, 10))
+
+    world.create_entity(
+        desper.Transform2D(position=(10, 10)),
+        *graphics.prepare_surface_array_components(nerissimo),
+        game.Oscillate(7, 3.5, 0),
+        O2(5, 5, 1),
+        game.TrailerComponent(target))
+
+    world.create_entity(
+        desper.Transform2D(position=(15, 10)),
+        *graphics.prepare_surface_array_components(nerissimo),
+        game.Oscillate(7, 5.5, 0),
+        O2(5, 3, 1),
+        game.TrailerComponent(target))
+
+    world.add_processor(desper.OnUpdateProcessor())
+    world.add_processor(game.TargetProcessor())
+
+
+def black_screen_level_transform(handle: desper.WorldHandle,
+                                 world: desper.World):
+    pass
+
+
 def base_crossing_level_transformer(handle: desper.WorldHandle,
                                     world: desper.World):
     """Oscillating blocks leave a hole."""
@@ -129,6 +163,9 @@ def base_knight_level_transformer(handle: desper.WorldHandle,
 
 
 transformer_list = [
+    ('trailer', base_nerissimo_trailer_level_transformer),
+    ('trailer_black_screen', black_screen_level_transform),
+
     ('square', base_square_level_transformer),
     ('nerissimo', base_nerissimo_level_transformer),
     ('crossing', base_crossing_level_transformer),

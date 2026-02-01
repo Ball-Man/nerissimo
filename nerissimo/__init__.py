@@ -66,8 +66,10 @@ def start_game(on_bonnet: bool = False, window_scale: int = 1):
 
     # Platform specific world transformer
     for world_handle in desper.resource_map['worlds'].handles.values():
-        world_handle.transform_functions += [platform_specific_transformer,
-                                             levels.base_level_transformer]
+        logger.info(world_handle.key)
+        if world_handle.key != 'trailer_black_screen':
+            world_handle.transform_functions += [platform_specific_transformer,
+                                                 levels.base_level_transformer]
 
     desper.default_loop.switch(desper.resource_map.get(f'worlds/{levels.transformer_list[0][0]}'))
     level_queue = deque(map(lambda pair: pair[0], levels.transformer_list))
@@ -76,7 +78,7 @@ def start_game(on_bonnet: bool = False, window_scale: int = 1):
             try:
                 desper.default_loop.loop()
             except game.Next:
-                level_queue.rotate()
+                level_queue.rotate(-1)
                 desper.default_loop.switch(desper.resource_map.get(f'worlds/{level_queue[0]}'),
                                            clear_current=True)
     except desper.Quit:

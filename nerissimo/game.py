@@ -94,19 +94,27 @@ class Oscillate(desper.Controller):
     transform = desper.ComponentReference(desper.Transform2D)
     _time = 0
 
-    def __init__(self, amplitude, freq):
+    def __init__(self, amplitude, freq, axis=0):
         self.amplitude = amplitude
         self.freq = freq
+        self.axis = axis
 
     def on_add(self, *args):
         super().on_add(*args)
-        self.base = self.transform.position[0]
+        self.base = self.transform.position[self.axis]
 
     def on_update(self, dt):
         self._time += dt
 
-        self.transform.position = desper.math.Vec2(self.base + self.amplitude * math.cos(self._time * self.freq),
-                                                   self.transform.position[1])
+        if self.axis == 0:
+            self.transform.position = desper.math.Vec2(self.base + self.amplitude
+                                                       * math.cos(self._time * self.freq),
+                                                       self.transform.position[1])
+
+        if self.axis == 1:
+            self.transform.position = desper.math.Vec2(self.transform.position[0],
+                                                       self.base + self.amplitude
+                                                       * math.cos(self._time * self.freq))
 
 
 class Target:
@@ -114,6 +122,22 @@ class Target:
 
     def __init__(self, value: desper.math.Vec2):
         self.value = value
+
+
+@desper.event_handler('on_key_down')
+class TrailerComponent(desper.Controller):
+    """In the trailer, on return stop oscillating and collapse."""
+    target = desper.ComponentReference(Target)
+
+    def __init__(self, target):
+        self._target = target
+
+    def on_key_down(self, sym):
+        if sym != sdl2.SDL_SCANCODE_RETURN:
+            return
+
+        self.world.remove_processor(desper.OnUpdateProcessor)
+        self.target = self._target
 
 
 def check_target(clip_rect, target: Target, shape) -> bool:
