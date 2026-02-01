@@ -27,7 +27,7 @@ def base_level_transformer(handle: desper.WorldHandle,
     world.add_processor(game.VelocityProcessor())
     world.add_processor(game.WinConditionProcessor(screen_surface_array), 1000)
     world.add_processor(graphics.ClipTransformsProcessors((0, 0, graphics.BONNET_HEIGHT,
-                                                           graphics.BONNET_WIDTH)))
+                                                           graphics.BONNET_WIDTH)), 99)
 
     world.create_entity(game.NextOnWin())
 

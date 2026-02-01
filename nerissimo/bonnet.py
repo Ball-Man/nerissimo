@@ -133,7 +133,7 @@ def game_world_transformer(handle: desper.WorldHandle, world: desper.World):
     """Instantiate game world (bonnet specific)."""
     world.add_processor(InputProcessor())
     # world.add_processor(DirtyRenderLoopProcessor())
-    world.add_processor(graphics.RenderLoopProcessor())
+    world.add_processor(graphics.RenderLoopProcessor(), 100)
     world.create_entity(BonnetToSDLKeys())
 
     world.create_entity(RenderHandler())

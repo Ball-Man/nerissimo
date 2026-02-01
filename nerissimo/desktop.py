@@ -54,7 +54,7 @@ class RenderHandler(desper.Controller):
 def game_world_transformer(handle: desper.WorldHandle,
                            world: desper.World):
     """Instantiate game world (desktop specific)."""
-    world.add_processor(graphics.RenderLoopProcessor())
+    world.add_processor(graphics.RenderLoopProcessor(), 100)
     world.add_processor(desktop.InputProcessor())
 
     world.create_entity(RenderHandler())
